@@ -19,27 +19,41 @@ class MatchRanker:
         and returns top-K formatted candidate dictionaries.
         """
         top_matches = []
+        req_exp = self.jd_min_experience
 
         for c in candidates:
-            # 1. Normalize alignment score onto 0-100 scale
-            raw_score = c.get("best_hybrid_score", 0.0)
-            norm_score = self._normalize_score(raw_score)
+            cand_exp = float(c.get("total_experience_years", 0.0))
+            raw_score = float(c.get("best_hybrid_score", 0.0))
 
-            # 2. Extract matched skills
+            # 1. Base Normalized Score (0 - 100)
+            base_score = self._normalize_score(raw_score)
+
+            # 2. Seniority & Experience Gap Penalty (Docs/EdgeCases.md)
+            exp_gap = max(0.0, req_exp - cand_exp)
+            if exp_gap > 0:
+                # Deduct 10 points per missing year
+                penalty = int(exp_gap * 10)
+                norm_score = max(15, base_score - penalty)
+                # Seniority Ceiling: If candidate has less than 60% of required experience, cap score at 58
+                if cand_exp < (req_exp * 0.6):
+                    norm_score = min(norm_score, 58)
+            else:
+                norm_score = base_score
+
+            # 3. Extract matched skills
             candidate_skills = [s.strip() for s in c.get("skills_str", "").split(",") if s.strip()]
             matched_skills = sorted(list(set(candidate_skills).intersection(set(self.jd_skills))))
             if not matched_skills and candidate_skills:
-                # Fallback fuzzy match
                 matched_skills = [s for s in candidate_skills if s.lower() in self.target_jd_text.lower()][:5]
 
-            # 3. Extract top relevant excerpts
+            # 4. Extract top relevant excerpts
             relevant_excerpts = self._extract_relevant_excerpts(c.get("chunks", []))
 
-            # 4. Generate Explainable Reasoning
+            # 5. Generate Explainable Reasoning with Seniority Clarity
             reasoning = self._generate_reasoning(
                 candidate_name=c["candidate_name"],
                 match_score=norm_score,
-                exp_years=c["total_experience_years"],
+                exp_years=cand_exp,
                 matched_skills=matched_skills,
                 excerpts=relevant_excerpts
             )
@@ -48,13 +62,25 @@ class MatchRanker:
                 "candidate_name": c["candidate_name"],
                 "resume_path": c["resume_path"],
                 "match_score": norm_score,
+                "experience_years": cand_exp,
                 "matched_skills": matched_skills,
                 "relevant_excerpts": relevant_excerpts,
                 "reasoning": reasoning
             })
 
-        # Re-sort by normalized match score
-        top_matches.sort(key=lambda x: x["match_score"], reverse=True)
+        # 6. Multi-Factor Tie-Breaking Sort:
+        # Primary: match_score (desc)
+        # Secondary: Meets min experience flag (True before False)
+        # Tertiary: total experience years (desc)
+        top_matches.sort(
+            key=lambda x: (
+                x["match_score"],
+                1 if x["experience_years"] >= req_exp else 0,
+                x["experience_years"],
+                len(x["matched_skills"])
+            ),
+            reverse=True
+        )
         return top_matches[:top_k]
 
     def _normalize_score(self, raw_score: float) -> int:
@@ -123,10 +149,11 @@ class MatchRanker:
 
         if exp_years >= req_exp:
             exp_clause = f"meets or exceeds the {req_exp:.0f}+ years experience requirement ({exp_years:.1f} yrs demonstrated)"
+            return f"{level} match ({match_score}/100): Candidate {exp_clause}; exhibits direct proficiency in {skills_str} aligned with key role responsibilities."
         else:
-            exp_clause = f"possesses {exp_years:.1f} years of relevant experience"
-
-        return f"{level} match ({match_score}/100): Candidate {exp_clause}; exhibits direct proficiency in {skills_str} aligned with key role responsibilities."
+            exp_gap = req_exp - exp_years
+            exp_clause = f"possesses {exp_years:.1f} yrs experience (falling {exp_gap:.1f} yrs short of the {req_exp:.0f}+ yrs target)"
+            return f"{level} match ({match_score}/100): [Seniority Gap] Candidate {exp_clause}; exhibits technical proficiency in {skills_str}, but lacks required Lead-level years of experience."
 
     def format_output_payload(self, job_description_text: str, top_matches: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Format matching results into the exact JSON schema required by ProblemStatement.md 4.2."""

@@ -248,6 +248,21 @@
           </div>
         </div>
 
+        <!-- Strict Experience Filter Toggle -->
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-subtle/80 border border-white/5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-400 text-[18px]">verified_user</span>
+            <div>
+              <p class="text-white font-semibold text-[11px]">Strict Seniority Gating</p>
+              <p class="text-slate-400 text-[10px]">Demote & penalize candidates below Min Experience</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="strict-exp-toggle" checked class="sr-only peer">
+            <div class="w-9 h-5 bg-surface-card peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+
         <!-- Action Trigger Button -->
         <button id="btn-run-match" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-primary via-accent to-primary hover:opacity-90 text-slate-950 font-extrabold text-sm shadow-glow-cyan active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-1">
           <span class="material-symbols-outlined text-[20px]">saved_search</span>
@@ -595,6 +610,7 @@
     const expVal = document.getElementById("exp-val");
     const alphaSlider = document.getElementById("alpha-slider");
     const alphaVal = document.getElementById("alpha-val");
+    const strictExpToggle = document.getElementById("strict-exp-toggle");
     const btnRunMatch = document.getElementById("btn-run-match");
     const btnClearJd = document.getElementById("btn-clear-jd");
     const candidatesFeed = document.getElementById("candidates-feed");
@@ -665,6 +681,30 @@
       return name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
 
+    // Smart Experience Parser from Resume Text
+    function extractExperienceFromText(text) {
+      const expMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:\+|plus)?\s*(?:years?|yrs?)(?:\s+of)?\s+(?:experience|exp)/i) ||
+                       text.match(/(?:experience|exp)[\s:]*(\d+(?:\.\d+)?)\s*(?:\+|plus)?\s*(?:years?|yrs?)/i);
+      if (expMatch) {
+        const val = parseFloat(expMatch[1]);
+        if (val > 0 && val <= 40) return val;
+      }
+      const yearMatches = [...text.matchAll(/\b(20[0-2][0-9])\s*[-–—to]+\s*(Present|Current|20[0-2][0-9])\b/gi)];
+      if (yearMatches.length > 0) {
+        let totalYears = 0;
+        const currentYear = new Date().getFullYear();
+        yearMatches.forEach(m => {
+          const start = parseInt(m[1]);
+          const end = m[2].toLowerCase().includes('pres') || m[2].toLowerCase().includes('curr') ? currentYear : parseInt(m[2]);
+          if (end >= start && end <= currentYear) {
+            totalYears += (end - start);
+          }
+        });
+        if (totalYears > 0 && totalYears <= 40) return Math.min(totalYears, 20);
+      }
+      return 2.0;
+    }
+
     // Robust In-Browser Skill Extractor
     function extractSkillsFromText(text) {
       const KNOWN_SKILLS = [
@@ -701,7 +741,7 @@
       return cleanExcerpts;
     }
 
-    // Preference-Weighted Hybrid Matching Engine
+    // Preference-Weighted Hybrid Matching Engine with Edge Case & Seniority Gating
     function executeMatching() {
       const roleTitle = customRoleInput.value.trim() || "Target Role";
       const mustHaveRaw = mustHaveSkillsInput.value.trim().toLowerCase();
@@ -710,6 +750,7 @@
       const fullQueryText = `${roleTitle} ${mustHaveRaw} ${jdTextarea.value}`.toLowerCase();
       const minExp = parseFloat(expSlider.value) || 0;
       const alpha = parseFloat(alphaSlider.value) / 100.0;
+      const isStrictSeniority = strictExpToggle.checked;
       const t0 = performance.now();
 
       matchingFeedTitle.textContent = `Candidate Rankings for: ${roleTitle}`;
@@ -729,12 +770,15 @@
         // 2. Weighted Domain Skills Overlap
         let weightedSkillScore = 0;
         const matchedSkillsList = [];
+        let matchedCoreCount = 0;
 
         cand.skills.forEach(skill => {
           const skLower = skill.toLowerCase();
           if (fullQueryText.includes(skLower)) {
             matchedSkillsList.push(skill);
-            const weight = UTILITY_SKILLS.has(skLower) ? 0.5 : 3.0; // Core skills get 3.0x weight!
+            const isUtil = UTILITY_SKILLS.has(skLower);
+            if (!isUtil) matchedCoreCount++;
+            const weight = isUtil ? 0.5 : 3.0; // Core skills get 3.0x weight!
             weightedSkillScore += weight;
           }
         });
@@ -747,39 +791,60 @@
         });
         const denseScore = Math.min(1.0, tokenHits / Math.max(1, queryTokens.length * 0.35));
 
-        // 4. Hybrid Combination & Mandatory Multiplier
-        let baseHybrid = (alpha * denseScore) + ((1.0 - alpha) * Math.min(1.0, weightedSkillScore / 8.0));
+        // 4. Hybrid Combination (strictly bounded to 0.0 - 1.0)
+        let skillRatio = Math.min(1.0, weightedSkillScore / 8.0);
+        let baseHybrid = (alpha * denseScore) + ((1.0 - alpha) * skillRatio);
         
         if (mandatorySkillsList.length > 0) {
           const mandatoryRatio = mandatoryMatchedCount / mandatorySkillsList.length;
           if (mandatoryRatio >= 0.5) {
-            baseHybrid += 0.35 * mandatoryRatio; // Boost
+            baseHybrid = Math.min(1.0, baseHybrid + (0.20 * mandatoryRatio)); // Bounded boost
           } else if (mandatoryRatio === 0) {
             baseHybrid = baseHybrid * 0.4; // Penalty if missing mandatory skills
           }
         }
 
-        // 5. Score Normalization (0-100)
-        let normScore = Math.round(25 + (baseHybrid * 70));
-        if (cand.exp < minExp) {
-          normScore = Math.max(15, normScore - 15);
-        }
-        normScore = Math.min(98, Math.max(20, normScore));
+        // 5. Seniority & Experience Shortfall Penalty (Docs/EdgeCases.md)
+        let normScore = Math.round(35 + (baseHybrid * 60)); // Standard scale: 35 to 95
+        const expGap = Math.max(0, minExp - cand.exp);
+        const meetsExp = cand.exp >= minExp;
 
-        // 6. XAI Reasoning Formulation
-        const matchLevel = normScore >= 80 ? "Strong" : (normScore >= 60 ? "Moderate" : "Potential");
-        const expClause = cand.exp >= minExp ? `meets the ${minExp}+ years experience requirement (${cand.exp} yrs demonstrated)` : `possesses ${cand.exp} years experience`;
-        
+        if (!meetsExp) {
+          // Linear experience gap penalty (-12 points per missing year)
+          const penalty = Math.round(expGap * 12);
+          normScore = Math.max(18, normScore - penalty);
+
+          // Hard Seniority Ceiling: An underqualified candidate cannot rank as a "Lead / Top Match"
+          if (cand.exp < (minExp * 0.6) || (isStrictSeniority && expGap >= 2.0)) {
+            normScore = Math.min(normScore, 55); // Hard cap for junior/mid candidates on senior roles
+          } else {
+            normScore = Math.min(normScore, 72);
+          }
+        } else {
+          // Bonus for meeting or exceeding experience requirements
+          normScore = Math.min(98, normScore + 3);
+        }
+
+        // 6. XAI Reasoning Formulation with Clear Seniority Audit
+        const matchLevel = normScore >= 80 ? "Strong" : (normScore >= 60 ? "Moderate" : "Potential / Junior");
         const coreSkillsCiting = matchedSkillsList.filter(s => !UTILITY_SKILLS.has(s.toLowerCase())).slice(0, 4);
         const finalSkillsStr = coreSkillsCiting.length > 0 ? coreSkillsCiting.join(", ") : (matchedSkillsList.slice(0, 3).join(", ") || "aligned technical qualifications");
         
-        const reasoning = `${matchLevel} match (${normScore}/100): Candidate ${expClause}; demonstrates verified production proficiency in ${finalSkillsStr} closely tailored to ${roleTitle} specifications.`;
+        let reasoning = "";
+        if (meetsExp) {
+          reasoning = `${matchLevel} match (${normScore}/100): Candidate meets the ${minExp}+ years experience requirement (${cand.exp} yrs demonstrated); exhibits verified production proficiency in ${finalSkillsStr} closely tailored to ${roleTitle} specifications.`;
+        } else {
+          reasoning = `⚠️ Seniority Shortfall (${normScore}/100): Candidate possesses ${cand.exp} yrs experience (falling ${expGap.toFixed(1)} yrs short of the ${minExp}+ yrs target). Demonstrates verified technical proficiency in ${finalSkillsStr}, but lacks required seniority for this ${roleTitle} role.`;
+        }
 
         return {
           candidate_name: cand.name,
           title: cand.title,
           degree: cand.degree,
           exp: cand.exp,
+          expGap: expGap,
+          meetsExp: meetsExp,
+          matchedCoreCount: matchedCoreCount,
           resume_path: cand.path,
           match_score: normScore,
           matched_skills: matchedSkillsList.length > 0 ? matchedSkillsList : cand.skills.slice(0, 3),
@@ -788,7 +853,26 @@
         };
       });
 
-      scoredCandidates.sort((a, b) => b.match_score - a.match_score);
+      // 7. Multi-Factor Tie-Breaking Sort
+      scoredCandidates.sort((a, b) => {
+        // 1. Primary: Match Score
+        if (b.match_score !== a.match_score) {
+          return b.match_score - a.match_score;
+        }
+        // 2. Secondary: Meets Experience requirement
+        const aMeets = a.meetsExp ? 1 : 0;
+        const bMeets = b.meetsExp ? 1 : 0;
+        if (bMeets !== aMeets) {
+          return bMeets - aMeets;
+        }
+        // 3. Tertiary: Total Experience years
+        if (b.exp !== a.exp) {
+          return b.exp - a.exp;
+        }
+        // 4. Quaternary: Matched Core Skills count
+        return b.matchedCoreCount - a.matchedCoreCount;
+      });
+
       const topMatches = scoredCandidates.slice(0, 5);
 
       const t1 = performance.now();
@@ -797,27 +881,29 @@
 
       // Form Standardized Output JSON Schema
       latestOutputPayload = {
-        job_description: `${roleTitle} [Must-Have: ${mustHaveRaw || 'None'}]: ${jdTextarea.value.slice(0, 100)}...`,
+        job_description: `${roleTitle} [Must-Have: ${mustHaveRaw || 'None'}, Min Exp: ${minExp}+ Yrs]: ${jdTextarea.value.slice(0, 100)}...`,
         top_matches: topMatches.map(m => ({
           candidate_name: m.candidate_name,
           resume_path: m.resume_path,
           match_score: m.match_score,
+          experience_years: m.exp,
+          meets_experience_requirement: m.meetsExp,
           matched_skills: m.matched_skills,
           relevant_excerpts: m.relevant_excerpts,
           reasoning: m.reasoning
         }))
       };
 
-      renderCandidates(topMatches, latencyMs);
+      renderCandidates(topMatches, latencyMs, minExp);
     }
 
-    function renderCandidates(matches, latencyMs) {
+    function renderCandidates(matches, latencyMs, minExp) {
       resultsCountLabel.textContent = `Showing Top ${matches.length} Matches • Evaluated in ${latencyMs} ms`;
       candidatesFeed.innerHTML = "";
 
       matches.forEach((cand, idx) => {
-        const isTop = idx === 0;
-        const scoreColor = cand.match_score >= 80 ? "#10B981" : (cand.match_score >= 65 ? "#38BDF8" : "#F59E0B");
+        const isTop = idx === 0 && cand.match_score >= 75;
+        const scoreColor = cand.match_score >= 80 ? "#10B981" : (cand.match_score >= 60 ? "#38BDF8" : "#F59E0B");
         const radius = 22;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (cand.match_score / 100) * circumference;
@@ -826,8 +912,13 @@
         const initials = cand.candidate_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'CP';
 
         const card = document.createElement("div");
-        card.className = `enterprise-glass rounded-2xl p-5 flex flex-col gap-4 border ${isTop ? 'border-primary/40 shadow-glow-cyan' : 'border-white/10 hover:border-primary/30'} transition-all`;
+        card.className = `enterprise-glass rounded-2xl p-5 flex flex-col gap-4 border ${isTop ? 'border-primary/40 shadow-glow-cyan' : (cand.meetsExp ? 'border-white/10 hover:border-primary/30' : 'border-amber-500/20 bg-amber-500/[0.02]')} transition-all`;
         
+        // Experience Badge (Green for verified, Amber/Red for gap)
+        const expBadgeHtml = cand.meetsExp
+          ? `<span class="px-2 py-0.5 text-[10px] font-mono rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">✓ ${cand.exp} Yrs Exp (Verified)</span>`
+          : `<span class="px-2 py-0.5 text-[10px] font-mono rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1 font-bold"><span class="material-symbols-outlined text-[12px]">warning</span> ${cand.exp} Yrs (-${cand.expGap.toFixed(1)} Yrs Deficit)</span>`;
+
         card.innerHTML = `
           <div class="flex items-start justify-between">
             <div class="flex items-center gap-3.5">
@@ -846,11 +937,12 @@
                 <div class="flex items-center gap-2">
                   <h3 class="text-base font-bold text-white tracking-tight">${cand.candidate_name}</h3>
                   ${isTop ? '<span class="px-2 py-0.5 text-[9px] font-mono uppercase rounded-full bg-primary/15 text-primary border border-primary/30 font-bold">Top Match</span>' : ''}
+                  ${!cand.meetsExp ? '<span class="px-2 py-0.5 text-[9px] font-mono uppercase rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold">Exp Shortfall</span>' : ''}
                 </div>
-                <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-400 font-medium">
+                <div class="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-400 font-medium">
                   <span class="text-slate-200">${cand.title}</span>
                   <span>•</span>
-                  <span class="text-primary font-mono font-semibold">${cand.exp} Yrs Exp</span>
+                  ${expBadgeHtml}
                   <span>•</span>
                   <span class="text-slate-400 text-[11px]">${cand.degree}</span>
                 </div>
@@ -888,8 +980,8 @@
           </div>
 
           <!-- AI Match Reasoning Box -->
-          <div class="p-3.5 rounded-xl bg-surface-subtle/80 border border-accent/25 text-xs text-slate-300 flex items-start gap-3 shadow-inner">
-            <span class="material-symbols-outlined text-accent text-[20px] mt-0.5">neurology</span>
+          <div class="p-3.5 rounded-xl ${cand.meetsExp ? 'bg-surface-subtle/80 border border-accent/25' : 'bg-rose-950/20 border border-rose-500/30'} text-xs text-slate-300 flex items-start gap-3 shadow-inner">
+            <span class="material-symbols-outlined ${cand.meetsExp ? 'text-accent' : 'text-rose-400'} text-[20px] mt-0.5">${cand.meetsExp ? 'neurology' : 'warning'}</span>
             <div class="flex-1 leading-relaxed">
               <strong class="text-white font-semibold">AI Alignment Rationale:</strong> ${cand.reasoning}
             </div>
@@ -952,16 +1044,17 @@
       const candidateName = cleanCandidateName(file.name);
       const skillsFound = extractSkillsFromText(extractedText);
       const excerptsFound = extractCleanExcerpts(extractedText, skillsFound);
+      const parsedExpYears = extractExperienceFromText(extractedText);
       
       // Auto-populate form
       document.getElementById("manual-name").value = candidateName;
       document.getElementById("manual-title").value = skillsFound.includes("Java") ? "Java / Spring Boot Developer" : (skillsFound.includes("PyTorch") ? "Machine Learning Engineer" : "Senior Software Engineer");
-      document.getElementById("manual-exp").value = "5.0";
+      document.getElementById("manual-exp").value = parsedExpYears.toFixed(1);
       document.getElementById("manual-degree").value = "B.Tech / B.S. in Computer Science";
       document.getElementById("manual-skills").value = skillsFound.join(", ") || "Java, Spring Boot, Redis, PostgreSQL";
       document.getElementById("manual-resume-text").value = extractedText.slice(0, 600);
 
-      showToast(`Extracted ${skillsFound.length} skills from ${file.name}! Verify and click Index.`);
+      showToast(`Parsed ${candidateName} (${parsedExpYears.toFixed(1)} yrs exp, ${skillsFound.length} skills)!`);
     }
 
     // Add Candidate to Active Corpus
@@ -1020,6 +1113,7 @@
       alphaVal.textContent = e.target.value;
       executeMatching();
     });
+    strictExpToggle.addEventListener("change", () => executeMatching());
     btnRunMatch.addEventListener("click", () => executeMatching());
     btnClearJd.addEventListener("click", () => {
       customRoleInput.value = "";
