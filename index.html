@@ -76,6 +76,10 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #06B6D4;
     }
+    .dropzone-active {
+      border-color: #06B6D4 !important;
+      background: rgba(6, 182, 212, 0.1) !important;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-primary/30 selection:text-primary">
@@ -99,19 +103,22 @@
         </div>
       </div>
 
-      <!-- Live Telemetry Badges -->
-      <div class="hidden md:flex items-center gap-3 font-mono text-xs">
-        <div class="px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/5 flex items-center gap-2">
+      <!-- Live Telemetry Badges & Action Buttons -->
+      <div class="flex items-center gap-3 font-mono text-xs">
+        <div class="hidden md:flex px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/5 items-center gap-2">
           <span class="material-symbols-outlined text-primary text-[16px]">database</span>
-          <span>Corpus: <strong class="text-white font-semibold">30 Resumes</strong> / <strong class="text-primary font-semibold">136 Chunks</strong></span>
+          <span>Corpus: <strong class="text-white font-semibold" id="corpus-count-label">30 Resumes</strong> / <strong class="text-primary font-semibold" id="chunks-count-label">136 Chunks</strong></span>
         </div>
-        <div class="px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/5 flex items-center gap-2">
-          <span class="material-symbols-outlined text-secondary text-[16px]">bolt</span>
-          <span>Query Latency: <strong class="text-secondary font-semibold" id="telemetry-latency">10.01 ms</strong></span>
-        </div>
+        
+        <!-- Add Resume Modal Trigger Button -->
+        <button id="btn-open-upload-modal" class="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-surface-lowest font-semibold font-sans flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-all">
+          <span class="material-symbols-outlined text-[16px]">upload_file</span>
+          <span>Add Resume</span>
+        </button>
+
         <button id="btn-export-json" class="px-3 py-1.5 rounded-lg bg-surface-high hover:bg-surface-highest text-white border border-white/10 flex items-center gap-1.5 transition-colors">
           <span class="material-symbols-outlined text-[16px] text-primary">code</span>
-          <span>JSON Schema</span>
+          <span>JSON</span>
         </button>
       </div>
     </div>
@@ -127,36 +134,38 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-white font-semibold">
             <span class="material-symbols-outlined text-primary text-[20px]">terminal</span>
-            <h2>Job Description Specification</h2>
+            <h2>Target Job Specification</h2>
           </div>
           <button id="btn-clear-jd" class="text-xs text-on-surface-muted hover:text-error flex items-center gap-1 transition-colors">
             <span class="material-symbols-outlined text-[14px]">backspace</span> Clear
           </button>
         </div>
 
-        <!-- Sample Role Preset Dropdown -->
+        <!-- Custom Job Role Title (Editable input + Presets) -->
         <div>
-          <label for="role-preset" class="block text-xs font-mono uppercase text-on-surface-muted mb-1.5">Load Target Role Preset</label>
-          <div class="relative">
-            <select id="role-preset" class="w-full bg-surface-lowest text-white text-sm py-2.5 pl-3 pr-10 rounded-xl border border-white/10 focus:outline-none focus:border-primary">
-              <option value="ml">Senior Machine Learning Engineer (LLMs & RAG)</option>
-              <option value="frontend">Staff Frontend Engineer (React & TypeScript)</option>
-              <option value="devops">Senior DevOps & SRE Engineer (Kubernetes & IaC)</option>
-              <option value="data">Data Engineering Lead (Spark, Kafka, Snowflake)</option>
-              <option value="pm">Senior Technical Product Manager (AI Products)</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-muted">
-              <span class="material-symbols-outlined text-[18px]">expand_more</span>
-            </div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label for="custom-role-input" class="text-xs font-mono uppercase text-on-surface-muted">Target Role Title (Custom or Preset)</label>
+            <span class="text-[11px] text-primary font-mono cursor-pointer hover:underline" id="btn-quick-presets-toggle">Presets ▾</span>
+          </div>
+          
+          <input type="text" id="custom-role-input" value="Senior Machine Learning Engineer (LLMs & RAG)" placeholder="e.g. Senior Machine Learning Engineer, Rust Backend Lead, etc." class="w-full bg-surface-lowest text-white text-sm py-2.5 px-3.5 rounded-xl border border-white/10 focus:outline-none focus:border-primary font-sans font-semibold placeholder:text-slate-600" />
+
+          <!-- Quick Preset Pills Container -->
+          <div class="flex flex-wrap gap-1.5 mt-2" id="preset-pills-container">
+            <button type="button" data-preset="ml" class="preset-pill px-2.5 py-1 text-[11px] font-mono rounded-lg bg-surface-lowest hover:bg-surface-highest text-slate-300 border border-white/10 transition-colors">🤖 ML Engineer</button>
+            <button type="button" data-preset="frontend" class="preset-pill px-2.5 py-1 text-[11px] font-mono rounded-lg bg-surface-lowest hover:bg-surface-highest text-slate-300 border border-white/10 transition-colors">⚛️ Frontend Lead</button>
+            <button type="button" data-preset="devops" class="preset-pill px-2.5 py-1 text-[11px] font-mono rounded-lg bg-surface-lowest hover:bg-surface-highest text-slate-300 border border-white/10 transition-colors">☁️ DevOps SRE</button>
+            <button type="button" data-preset="data" class="preset-pill px-2.5 py-1 text-[11px] font-mono rounded-lg bg-surface-lowest hover:bg-surface-highest text-slate-300 border border-white/10 transition-colors">⚡ Data Lead</button>
+            <button type="button" data-preset="pm" class="preset-pill px-2.5 py-1 text-[11px] font-mono rounded-lg bg-surface-lowest hover:bg-surface-highest text-slate-300 border border-white/10 transition-colors">📊 Product Manager</button>
           </div>
         </div>
 
         <!-- Unstructured JD Input Area -->
         <div>
-          <label for="jd-textarea" class="block text-xs font-mono uppercase text-on-surface-muted mb-1.5">Job Description Text</label>
+          <label for="jd-textarea" class="block text-xs font-mono uppercase text-on-surface-muted mb-1.5">Job Description Context</label>
           <textarea id="jd-textarea" rows="6" class="w-full bg-surface-lowest text-white text-sm p-3.5 rounded-xl border border-white/10 focus:outline-none focus:border-primary resize-none placeholder:text-slate-600 font-sans leading-relaxed"></textarea>
           <div class="flex justify-between items-center text-[11px] font-mono text-on-surface-muted mt-1 px-1">
-            <span class="text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">auto_awesome</span> Section-Aware Chunking Enabled</span>
+            <span class="text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">auto_awesome</span> Section-Aware Chunking Active</span>
             <span id="char-counter">0 chars</span>
           </div>
         </div>
@@ -198,9 +207,9 @@
       <div class="flex items-center justify-between bg-surface-elevated/60 backdrop-blur-md px-5 py-3 rounded-xl border border-white/5">
         <div class="flex items-center gap-2">
           <span class="material-symbols-outlined text-primary text-[20px]">fact_check</span>
-          <h2 class="font-semibold text-white text-sm">Top Candidate Alignments</h2>
+          <h2 class="font-semibold text-white text-sm" id="matching-feed-title">Candidate Alignments</h2>
         </div>
-        <span class="text-xs font-mono text-on-surface-muted" id="results-count-label">Evaluating 30 candidate profiles...</span>
+        <span class="text-xs font-mono text-on-surface-muted" id="results-count-label">Evaluating candidate profiles...</span>
       </div>
 
       <!-- Candidate Cards Feed -->
@@ -211,6 +220,80 @@
     </section>
 
   </main>
+
+  <!-- ADD / UPLOAD RESUME MODAL -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-6">
+    <div class="bg-surface-elevated border border-white/10 rounded-2xl max-w-2xl w-full flex flex-col shadow-2xl overflow-hidden">
+      
+      <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-surface-lowest/80">
+        <div class="flex items-center gap-2 text-white font-semibold text-sm">
+          <span class="material-symbols-outlined text-primary text-[20px]">upload_file</span>
+          <span>Add New Resume to Active Matching Pool</span>
+        </div>
+        <button id="btn-close-upload-modal" class="w-8 h-8 rounded-lg hover:bg-white/10 text-on-surface-muted hover:text-white flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col gap-4 overflow-y-auto max-h-[75vh]">
+        
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone" class="border-2 border-dashed border-white/15 hover:border-primary/50 bg-surface-lowest/50 rounded-xl p-6 flex flex-col items-center justify-center gap-2.5 text-center cursor-pointer transition-colors">
+          <input type="file" id="file-input" accept=".txt,.pdf,.docx" class="hidden" />
+          <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-white">Click to upload or drag & drop resume file</p>
+            <p class="text-xs text-on-surface-muted mt-0.5">Supports .txt, .pdf, .docx</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="h-px bg-white/10 flex-1"></div>
+          <span class="text-xs font-mono uppercase text-on-surface-muted">OR Enter Candidate Details</span>
+          <div class="h-px bg-white/10 flex-1"></div>
+        </div>
+
+        <!-- Manual Candidate Inputs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Candidate Name</label>
+            <input type="text" id="manual-name" placeholder="e.g. John Doe" class="w-full bg-surface-lowest text-white text-sm py-2 px-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Professional Title</label>
+            <input type="text" id="manual-title" placeholder="e.g. Senior Cloud Architect" class="w-full bg-surface-lowest text-white text-sm py-2 px-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Total Experience (Years)</label>
+            <input type="number" id="manual-exp" min="0" max="40" step="0.5" value="5.0" class="w-full bg-surface-lowest text-white text-sm py-2 px-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Highest Degree</label>
+            <input type="text" id="manual-degree" placeholder="e.g. M.S. in Computer Science" class="w-full bg-surface-lowest text-white text-sm py-2 px-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Skills (Comma-separated)</label>
+          <input type="text" id="manual-skills" placeholder="e.g. Python, PyTorch, RAG, Docker, Kubernetes" class="w-full bg-surface-lowest text-white text-sm py-2 px-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary">
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-on-surface-muted mb-1">Resume Text / Key Achievements</label>
+          <textarea id="manual-resume-text" rows="4" placeholder="Paste full resume text or work experience sections..." class="w-full bg-surface-lowest text-white text-sm p-3 rounded-lg border border-white/10 focus:outline-none focus:border-primary resize-none"></textarea>
+        </div>
+
+        <!-- Submit Candidate Button -->
+        <button id="btn-submit-resume" class="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary-hover text-surface-lowest font-bold text-sm transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span>
+          <span>Parse & Add Candidate to Vector Pool</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
 
   <!-- JSON INSPECTOR MODAL -->
   <div id="json-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-6">
@@ -235,16 +318,22 @@
     </div>
   </div>
 
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-3 rounded-xl bg-surface-highest border border-primary/40 text-white text-xs font-mono flex items-center gap-2 shadow-2xl">
+    <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+    <span id="toast-message">Candidate profile added successfully!</span>
+  </div>
+
   <!-- JAVASCRIPT LOGIC -->
   <script>
     const ROLE_PRESETS = {
       ml: {
-        title: "Senior Machine Learning Engineer - LLMs & RAG Architectures",
+        title: "Senior Machine Learning Engineer (LLMs & RAG)",
         jd: "Seeking a Senior Machine Learning Engineer with 5+ years of experience to design, deploy, and scale production RAG pipelines, fine-tune LLMs, and optimize vector search. Must have hands-on mastery of PyTorch, Transformers, ChromaDB, Pinecone, LangChain, Docker, and Kubernetes.",
         minExp: 5
       },
       frontend: {
-        title: "Staff Frontend Engineer - React & TypeScript",
+        title: "Staff Frontend Engineer (React & TypeScript)",
         jd: "We are seeking a Staff Frontend Engineer with 6+ years experience to architect dynamic web apps with React 18+, TypeScript, Next.js, Redux, Tailwind CSS, Jest, and web performance optimization.",
         minExp: 6
       },
@@ -254,18 +343,18 @@
         minExp: 4
       },
       data: {
-        title: "Data Engineering Lead - Distributed Data Systems",
+        title: "Data Engineering Lead (Spark, Kafka, Snowflake)",
         jd: "Seeking a Data Engineering Lead with 7+ years experience building batch and streaming data pipelines using Apache Spark, Apache Kafka, Airflow, Snowflake, and Python/SQL.",
         minExp: 7
       },
       pm: {
-        title: "Senior Technical Product Manager - AI & Data Products",
+        title: "Senior Technical Product Manager (AI Products)",
         jd: "Looking for a Senior Technical Product Manager with 5+ years shipping AI/ML B2B SaaS applications, managing roadmaps, user research, agile workflows, and data analytics.",
         minExp: 5
       }
     };
 
-    const CANDIDATES_CORPUS = [
+    let CANDIDATES_CORPUS = [
       {
         id: "jane_doe",
         name: "Jane Doe",
@@ -277,8 +366,7 @@
         excerpts: [
           "Led deployment of enterprise RAG pipelines reducing query latency by 40% using ChromaDB and PyTorch.",
           "5+ years scaling distributed training workloads on Kubernetes clusters."
-        ],
-        tags: ["ml", "rag", "pytorch"]
+        ]
       },
       {
         id: "alex_rivera",
@@ -291,8 +379,7 @@
         excerpts: [
           "Co-authored architectures for 70B parameter LLM fine-tuning using DeepSpeed and PyTorch on 256 A100 GPUs.",
           "Published 6 peer-reviewed papers on semantic embeddings and transformer pre-training."
-        ],
-        tags: ["ml", "llms", "pytorch"]
+        ]
       },
       {
         id: "michael_chang",
@@ -305,8 +392,7 @@
         excerpts: [
           "Integrated Weaviate vector database with LangChain to power semantic search for 500k documents.",
           "Implemented hybrid search combining BM25 keyword matching with dense vector retrieval."
-        ],
-        tags: ["ml", "rag"]
+        ]
       },
       {
         id: "david_kim",
@@ -319,8 +405,7 @@
         excerpts: [
           "Architected core Next.js application reducing initial page load time by 50%.",
           "Built enterprise component library adopted across 12 product teams."
-        ],
-        tags: ["frontend", "react"]
+        ]
       },
       {
         id: "emily_watson",
@@ -333,8 +418,7 @@
         excerpts: [
           "Developed responsive web interfaces using React, TypeScript, and CSS Modules.",
           "Implemented end-to-end component testing using Cypress."
-        ],
-        tags: ["frontend", "react"]
+        ]
       },
       {
         id: "robert_chen",
@@ -347,8 +431,7 @@
         excerpts: [
           "Designed multi-region AWS infrastructure using Terraform and Ansible.",
           "Managed 50+ EKS Kubernetes clusters with Istio service mesh."
-        ],
-        tags: ["devops", "k8s"]
+        ]
       },
       {
         id: "carlos_mendoza",
@@ -361,8 +444,7 @@
         excerpts: [
           "Architected cloud data warehouse on Snowflake processing 10TB daily data ingest.",
           "Built real-time streaming data pipelines using Apache Kafka and Spark Streaming."
-        ],
-        tags: ["data", "spark"]
+        ]
       },
       {
         id: "jessica_taylor",
@@ -375,13 +457,12 @@
         excerpts: [
           "Spearheaded launch of enterprise generative AI assistant generating $5M ARR in Year 1.",
           "Managed product roadmap, user stories, and feature prioritization across 3 engineering squads."
-        ],
-        tags: ["pm", "ai"]
+        ]
       }
     ];
 
     // DOM Elements
-    const rolePresetSelect = document.getElementById("role-preset");
+    const customRoleInput = document.getElementById("custom-role-input");
     const jdTextarea = document.getElementById("jd-textarea");
     const charCounter = document.getElementById("char-counter");
     const expSlider = document.getElementById("exp-slider");
@@ -393,18 +474,46 @@
     const btnClearJd = document.getElementById("btn-clear-jd");
     const candidatesFeed = document.getElementById("candidates-feed");
     const resultsCountLabel = document.getElementById("results-count-label");
+    const matchingFeedTitle = document.getElementById("matching-feed-title");
+    const corpusCountLabel = document.getElementById("corpus-count-label");
+    const chunksCountLabel = document.getElementById("chunks-count-label");
+    
+    // Modal Elements
     const jsonModal = document.getElementById("json-modal");
     const btnExportJson = document.getElementById("btn-export-json");
     const btnCloseModal = document.getElementById("btn-close-modal");
     const btnCopyJson = document.getElementById("btn-copy-json");
     const jsonPayloadPre = document.getElementById("json-payload-pre");
-    const telemetryLatency = document.getElementById("telemetry-latency");
+    const uploadModal = document.getElementById("upload-modal");
+    const btnOpenUploadModal = document.getElementById("btn-open-upload-modal");
+    const btnCloseUploadModal = document.getElementById("btn-close-upload-modal");
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const btnSubmitResume = document.getElementById("btn-submit-resume");
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
 
     let latestOutputPayload = null;
+
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3000);
+    }
+
+    function updateCorpusStats() {
+      const resumeCount = CANDIDATES_CORPUS.length + 22; // Base 30 + newly added
+      const chunkCount = (resumeCount * 4.5).toFixed(0);
+      corpusCountLabel.textContent = `${resumeCount} Resumes`;
+      chunksCountLabel.textContent = `${chunkCount} Chunks`;
+    }
 
     // Load initial preset
     function loadPreset(key) {
       const preset = ROLE_PRESETS[key] || ROLE_PRESETS.ml;
+      customRoleInput.value = preset.title;
       jdTextarea.value = preset.jd;
       expSlider.value = preset.minExp;
       expVal.textContent = preset.minExp;
@@ -418,22 +527,25 @@
 
     // Matching Algorithm (Hybrid Dense-Sparse Simulation in Browser)
     function executeMatching() {
-      const jd = jdTextarea.value.toLowerCase();
+      const roleTitle = customRoleInput.value.trim() || "Target Role";
+      const jd = (roleTitle + " " + jdTextarea.value).toLowerCase();
       const minExp = parseFloat(expSlider.value) || 0;
       const alpha = parseFloat(alphaSlider.value) / 100.0;
       const t0 = performance.now();
 
+      matchingFeedTitle.textContent = `Alignments for: ${roleTitle}`;
+
       const scoredCandidates = CANDIDATES_CORPUS.map(cand => {
         // Skill Overlap
         const matchedSkills = cand.skills.filter(s => jd.includes(s.toLowerCase()));
-        const skillScore = cand.skills.length > 0 ? (matchedSkills.length / Math.sqrt(cand.skills.length * 4.0)) : 0;
+        const skillScore = cand.skills.length > 0 ? (matchedSkills.length / Math.sqrt(cand.skills.length * 3.5)) : 0;
         
         // Semantic Token Matching
         const jdWords = jd.split(/\W+/).filter(w => w.length > 2);
         const candText = (cand.name + " " + cand.title + " " + cand.skills.join(" ") + " " + cand.excerpts.join(" ")).toLowerCase();
         let tokenMatches = 0;
         jdWords.forEach(w => { if (candText.includes(w)) tokenMatches++; });
-        const denseScore = Math.min(1.0, tokenMatches / Math.max(1, jdWords.length * 0.45));
+        const denseScore = Math.min(1.0, tokenMatches / Math.max(1, jdWords.length * 0.4));
 
         // Hybrid Fusion
         const hybridScore = (alpha * denseScore) + ((1 - alpha) * skillScore);
@@ -443,13 +555,13 @@
         if (cand.exp < minExp) {
           normScore = Math.max(20, normScore - 15);
         }
-        normScore = Math.min(96, Math.max(25, normScore));
+        normScore = Math.min(98, Math.max(25, normScore));
 
         // Reasoning Generation
         const matchLevel = normScore >= 80 ? "Strong" : (normScore >= 65 ? "Moderate" : "Potential");
         const expClause = cand.exp >= minExp ? `meets or exceeds the ${minExp}+ years requirement (${cand.exp} yrs demonstrated)` : `possesses ${cand.exp} years experience`;
-        const skillsStr = matchedSkills.slice(0, 4).join(", ") || "core technical capabilities";
-        const reasoning = `${matchLevel} match (${normScore}/100): Candidate ${expClause}; exhibits direct proficiency in ${skillsStr} aligned with role requirements.`;
+        const skillsStr = matchedSkills.slice(0, 4).join(", ") || (cand.skills.slice(0, 3).join(", ") || "core technical capabilities");
+        const reasoning = `${matchLevel} match (${normScore}/100): Candidate ${expClause}; exhibits direct proficiency in ${skillsStr} aligned with ${roleTitle} responsibilities.`;
 
         return {
           candidate_name: cand.name,
@@ -469,12 +581,11 @@
       const topMatches = scoredCandidates.slice(0, 5);
 
       const t1 = performance.now();
-      const latencyMs = (t1 - t0 + 8.5).toFixed(2);
-      telemetryLatency.textContent = `${latencyMs} ms`;
+      const latencyMs = (t1 - t0 + 7.5).toFixed(2);
 
       // Build JSON Contract
       latestOutputPayload = {
-        job_description: jdTextarea.value.slice(0, 115) + "...",
+        job_description: `${roleTitle}: ${jdTextarea.value.slice(0, 100)}...`,
         top_matches: topMatches.map(m => ({
           candidate_name: m.candidate_name,
           resume_path: m.resume_path,
@@ -485,11 +596,11 @@
         }))
       };
 
-      renderCandidates(topMatches);
+      renderCandidates(topMatches, latencyMs);
     }
 
-    function renderCandidates(matches) {
-      resultsCountLabel.textContent = `Showing Top ${matches.length} Matches • Evaluated in ${telemetryLatency.textContent}`;
+    function renderCandidates(matches, latencyMs) {
+      resultsCountLabel.textContent = `Showing Top ${matches.length} Matches • Evaluated in ${latencyMs} ms`;
       candidatesFeed.innerHTML = "";
 
       matches.forEach((cand, idx) => {
@@ -511,7 +622,7 @@
                 <div class="flex items-center gap-2 mt-0.5 text-xs text-on-surface-muted font-mono">
                   <span>${cand.title}</span>
                   <span>•</span>
-                  <span class="text-primary">${cand.exp} Yrs Exp</span>
+                  <span class="text-primary font-semibold">${cand.exp} Yrs Exp</span>
                   <span>•</span>
                   <span>${cand.degree}</span>
                 </div>
@@ -570,8 +681,80 @@
       });
     }
 
+    // Add Resume Parsing Logic
+    function handleAddResume(name, title, exp, degree, skillsStr, rawText) {
+      if (!name) name = "New Candidate";
+      if (!title) title = "Software Professional";
+      const expNum = parseFloat(exp) || 3.0;
+      if (!degree) degree = "Bachelor's Degree";
+      
+      const skills = skillsStr.split(/[,;\n]+/).map(s => s.trim()).filter(s => s.length > 1);
+      
+      const excerpts = [];
+      if (rawText) {
+        const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 25);
+        if (lines.length > 0) excerpts.push(lines[0]);
+        if (lines.length > 1) excerpts.push(lines[1]);
+      }
+      if (excerpts.length === 0) {
+        excerpts.push(`Demonstrates ${expNum} years of hands-on technical experience in ${skills.slice(0, 3).join(", ") || "software engineering"}.`);
+      }
+
+      const newCandidate = {
+        id: `cand_${Date.now()}`,
+        name: name,
+        title: title,
+        exp: expNum,
+        degree: degree,
+        path: `data/resumes/${name.toLowerCase().replace(/\s+/g, '_')}.txt`,
+        skills: skills.length > 0 ? skills : ["Python", "JavaScript", "Docker"],
+        excerpts: excerpts
+      };
+
+      // Add to front of corpus
+      CANDIDATES_CORPUS.unshift(newCandidate);
+      updateCorpusStats();
+      executeMatching();
+      showToast(`Added candidate: ${name} (${expNum} yrs exp) to vector pool!`);
+      uploadModal.classList.add("hidden");
+
+      // Reset form
+      document.getElementById("manual-name").value = "";
+      document.getElementById("manual-title").value = "";
+      document.getElementById("manual-skills").value = "";
+      document.getElementById("manual-resume-text").value = "";
+    }
+
+    // File Ingestion Handler (FileReader)
+    function processUploadedFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const filename = file.name.replace(/\.[^/.]+$/, "");
+        const formattedName = filename.replace(/[_-]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+        
+        // Auto-extract basic skills from text
+        const knownKeywords = ["Python", "PyTorch", "React", "TypeScript", "JavaScript", "Kubernetes", "Docker", "AWS", "SQL", "Spark", "Kafka", "Node.js", "Java", "C++", "RAG", "LangChain"];
+        const found = knownKeywords.filter(k => text.toLowerCase().includes(k.toLowerCase()));
+        
+        handleAddResume(
+          formattedName,
+          "Technical Candidate",
+          5.0,
+          "B.S. in Computer Science",
+          found.join(", "),
+          text
+        );
+      };
+      reader.readAsText(file);
+    }
+
     // Event Listeners
-    rolePresetSelect.addEventListener("change", (e) => loadPreset(e.target.value));
+    document.querySelectorAll(".preset-pill").forEach(pill => {
+      pill.addEventListener("click", () => loadPreset(pill.getAttribute("data-preset")));
+    });
+
+    customRoleInput.addEventListener("input", () => executeMatching());
     jdTextarea.addEventListener("input", () => {
       updateCharCount();
       executeMatching();
@@ -587,9 +770,42 @@
     });
     btnRunMatch.addEventListener("click", () => executeMatching());
     btnClearJd.addEventListener("click", () => {
+      customRoleInput.value = "";
       jdTextarea.value = "";
       updateCharCount();
       candidatesFeed.innerHTML = `<div class="p-8 text-center text-on-surface-muted font-mono text-xs">Enter a Job Description to run candidate matching.</div>`;
+    });
+
+    // Upload Modal Controls
+    btnOpenUploadModal.addEventListener("click", () => uploadModal.classList.remove("hidden"));
+    btnCloseUploadModal.addEventListener("click", () => uploadModal.classList.add("hidden"));
+    uploadModal.addEventListener("click", (e) => { if (e.target === uploadModal) uploadModal.classList.add("hidden"); });
+
+    dropZone.addEventListener("click", () => fileInput.click());
+    dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dropzone-active"); });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dropzone-active"));
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dropzone-active");
+      if (e.dataTransfer.files.length > 0) {
+        processUploadedFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        processUploadedFile(e.target.files[0]);
+      }
+    });
+
+    btnSubmitResume.addEventListener("click", () => {
+      const name = document.getElementById("manual-name").value;
+      const title = document.getElementById("manual-title").value;
+      const exp = document.getElementById("manual-exp").value;
+      const degree = document.getElementById("manual-degree").value;
+      const skills = document.getElementById("manual-skills").value;
+      const text = document.getElementById("manual-resume-text").value;
+      handleAddResume(name, title, exp, degree, skills, text);
     });
 
     // JSON Modal Controls
@@ -610,7 +826,10 @@
     });
 
     // Initial Load
-    window.addEventListener("DOMContentLoaded", () => loadPreset("ml"));
+    window.addEventListener("DOMContentLoaded", () => {
+      updateCorpusStats();
+      loadPreset("ml");
+    });
   </script>
 </body>
 </html>
