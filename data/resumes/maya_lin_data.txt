@@ -1,0 +1,18 @@
+Name: Maya Lin
+Title: Data Engineer
+Total Experience: 3 years
+
+=== SUMMARY ===
+Data Engineer with 3 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Data Engineer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using Python, SQL, Spark, Airflow, PostgreSQL.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: Python, SQL, Spark, Airflow, PostgreSQL
+

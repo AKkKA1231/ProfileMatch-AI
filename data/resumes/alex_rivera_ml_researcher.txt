@@ -1,0 +1,24 @@
+Name: Alex Rivera
+Title: AI Research Scientist & LLM Specialist
+Total Experience: 8 years
+
+=== SUMMARY ===
+AI Research Scientist specializing in Large Language Models (LLMs), deep learning architecture optimization, and distributed GPU training systems with 8 years of research and production experience.
+
+=== WORK EXPERIENCE ===
+Principal AI Scientist at Neural Labs (2020 - Present):
+- Co-authored architectures for 70B parameter LLM fine-tuning using DeepSpeed and PyTorch on 256 A100 GPUs.
+- Optimized CUDA kernels reducing memory overhead during attention computation by 25%.
+
+NLP Researcher at AI Institute (2016 - 2020):
+- Published 6 peer-reviewed papers in NeurIPS and ACL on semantic embeddings and transformer pre-training.
+
+=== EDUCATION ===
+Ph.D. in Artificial Intelligence, Massachusetts Institute of Technology (2012 - 2016)
+
+=== SKILLS ===
+Core: PyTorch, CUDA, DeepSpeed, Ray, Hugging Face, Python, C++
+
+=== CERTIFICATIONS ===
+NVIDIA Certified Deep Learning Professional
+

@@ -1,0 +1,18 @@
+Name: Ethan Hunt
+Title: Cybersecurity Analyst
+Total Experience: 5 years
+
+=== SUMMARY ===
+Cybersecurity Analyst with 5 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Cybersecurity Analyst at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using Network Security, Penetration Testing, Python, Linux.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: Network Security, Penetration Testing, Python, Linux
+

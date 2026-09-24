@@ -1,0 +1,19 @@
+Job Title: Senior Machine Learning Engineer - LLMs & RAG Architectures
+Location: San Francisco, CA (Hybrid / Remote)
+Experience Required: 5+ years
+
+Role Overview:
+We are looking for a Senior Machine Learning Engineer to design, build, and deploy production-grade Retrieval-Augmented Generation (RAG) pipelines and distributed LLM fine-tuning systems. You will lead the architecture of context-aware search engines and scale ML infrastructure serving millions of queries.
+
+Key Responsibilities:
+- Design, deploy, and optimize end-to-end RAG pipelines using vector databases (ChromaDB, Pinecone, Weaviate) and hybrid retrieval (Dense embeddings + BM25).
+- Scale distributed ML training and fine-tuning workloads (PyTorch, DeepSpeed, Ray) on Kubernetes clusters.
+- Implement section-aware chunking, automated metadata extraction, and semantic search algorithms.
+- Benchmark and optimize query latency, vector retrieval precision (Hit Rate, MRR), and LLM response grounding.
+
+Required Qualifications & Skills:
+- 5+ years of experience in Machine Learning, Natural Language Processing (NLP), and Python software engineering.
+- Deep expertise in PyTorch, Hugging Face Transformers, and LLM orchestration (LangChain, LlamaIndex).
+- Proven experience with vector databases (ChromaDB, Pinecone, Qdrant) and hybrid search architectures.
+- Hands-on experience with Kubernetes, Docker, distributed GPU training, and CI/CD pipelines.
+- M.S. or Ph.D. in Computer Science, Data Science, or related quantitative field.

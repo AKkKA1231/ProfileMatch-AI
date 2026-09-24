@@ -1,0 +1,17 @@
+Name: Kevin Patel
+Title: Product Manager
+Total Experience: 4 years
+
+=== SUMMARY ===
+Product Manager with 4 years experience driving user growth and feature delivery for mobile and web SaaS applications.
+
+=== WORK EXPERIENCE ===
+Product Manager at TechGrowth (2020 - Present):
+- Led customer discovery and wireframing for onboarding flow, increasing conversion by 22%.
+
+=== EDUCATION ===
+B.S. in Business & CS, University of Toronto (2016 - 2020)
+
+=== SKILLS ===
+Agile, JIRA, Wireframing, SQL, Mixpanel
+

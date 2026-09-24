@@ -1,0 +1,19 @@
+Name: Michael Chang
+Title: Machine Learning Engineer - NLP & RAG
+Total Experience: 4 years
+
+=== SUMMARY ===
+Machine Learning Engineer with 4 years of experience building RAG systems, semantic search integrations, and automated metadata extraction pipelines.
+
+=== WORK EXPERIENCE ===
+ML Engineer at SearchAI (2020 - Present):
+- Integrated Weaviate vector database with LangChain to power semantic search for 500k documents.
+- Implemented hybrid search combining BM25 keyword matching with dense vector retrieval.
+- Created automated document ingestion pipelines using FastAPI and PyMuPDF.
+
+=== EDUCATION ===
+B.S. in Computer Science, Carnegie Mellon University (2016 - 2020)
+
+=== SKILLS ===
+Python, PyTorch, LangChain, Weaviate, Pinecone, Docker, REST APIs
+

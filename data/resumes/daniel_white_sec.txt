@@ -1,0 +1,18 @@
+Name: Daniel White
+Title: Cloud Security Engineer
+Total Experience: 6 years
+
+=== SUMMARY ===
+Cloud Security Engineer with 6 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Cloud Security Engineer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using AWS, IAM, Terraform, Python, Kubernetes Security, SIEM.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: AWS, IAM, Terraform, Python, Kubernetes Security, SIEM
+

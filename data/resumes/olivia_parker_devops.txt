@@ -1,0 +1,18 @@
+Name: Olivia Parker
+Title: DevOps Engineer
+Total Experience: 3 years
+
+=== SUMMARY ===
+DevOps Engineer with 3 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+DevOps Engineer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using Docker, Kubernetes, AWS, Terraform, GitHub Actions.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: Docker, Kubernetes, AWS, Terraform, GitHub Actions
+

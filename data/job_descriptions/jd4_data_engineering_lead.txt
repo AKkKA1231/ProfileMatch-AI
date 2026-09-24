@@ -1,0 +1,18 @@
+Job Title: Data Engineering Lead - Distributed Data Systems
+Location: Seattle, WA (Hybrid)
+Experience Required: 7+ years
+
+Role Overview:
+We are seeking a Data Engineering Lead to architect real-time and batch data processing platforms. You will design scalable ETL/ELT pipelines processing multi-terabyte datasets to power analytics and machine learning applications.
+
+Key Responsibilities:
+- Architect and maintain enterprise data lakes and data warehouses (Snowflake, Databricks, BigQuery).
+- Build streaming and batch data pipelines using Apache Spark, Apache Kafka, Airflow, and dbt.
+- Enforce data governance, data quality checks, schema evolution, and data modeling best practices (Dimensional / Data Vault).
+- Optimize SQL queries, distributed computing jobs, and storage partitioning strategies.
+
+Required Qualifications & Skills:
+- 7+ years of hands-on data engineering experience building production data pipelines.
+- Mastery of Python, Scala/Java, and advanced SQL query optimization.
+- Deep experience with Apache Spark, Kafka, Airflow, Snowflake/BigQuery, and Delta Lake.
+- Strong knowledge of data modeling, data warehousing, and cloud data architectures (AWS/GCP).

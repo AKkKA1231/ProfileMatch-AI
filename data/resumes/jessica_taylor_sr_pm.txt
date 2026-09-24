@@ -1,0 +1,19 @@
+Name: Jessica Taylor
+Title: Senior Technical Product Manager - AI Products
+Total Experience: 6 years
+
+=== SUMMARY ===
+Senior Technical Product Manager with 6 years experience launching AI-driven B2B SaaS applications, leading cross-functional engineering teams, and driving product roadmaps.
+
+=== WORK EXPERIENCE ===
+Senior Technical Product Manager at AI SaaS Inc (2020 - Present):
+- Spearheaded launch of enterprise generative AI assistant generating $5M ARR in Year 1.
+- Managed product roadmap, user stories, and feature prioritization across 3 engineering squads.
+
+=== EDUCATION ===
+MBA, Harvard Business School (2018 - 2020)
+B.S. in Computer Science, MIT (2012 - 2016)
+
+=== SKILLS ===
+Product Strategy, User Research, Agile, JIRA, SQL, Mixpanel, Roadmapping
+

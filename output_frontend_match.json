@@ -1,0 +1,80 @@
+{
+  "job_description": "Job Title: Staff Frontend Engineer - React & TypeScript Location: New York, NY (Remote Optional) Experience Required:...",
+  "top_matches": [
+    {
+      "candidate_name": "Emily Watson",
+      "resume_path": "data/resumes\\emily_watson_sr_frontend.txt",
+      "match_score": 78,
+      "matched_skills": [
+        "JavaScript",
+        "React",
+        "TypeScript"
+      ],
+      "relevant_excerpts": [
+        "Senior Frontend Developer at CreativeTech (2020 - Present):",
+        "Developed responsive web interfaces using React, TypeScript, and CSS Modules."
+      ],
+      "reasoning": "Moderate match (78/100): Candidate possesses 5.0 years of relevant experience; exhibits direct proficiency in JavaScript, React, TypeScript aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "David Kim",
+      "resume_path": "data/resumes\\david_kim_staff_frontend.txt",
+      "match_score": 77,
+      "matched_skills": [
+        "Jest",
+        "Next.js",
+        "React",
+        "Redux",
+        "TypeScript"
+      ],
+      "relevant_excerpts": [
+        "Staff Frontend Engineer at WebScale Inc (2021 - Present):",
+        "Architected core Next.js application reducing initial page load time by 50%."
+      ],
+      "reasoning": "Moderate match (77/100): Candidate meets or exceeds the 6+ years experience requirement (7.0 yrs demonstrated); exhibits direct proficiency in Jest, Next.js, React, Redux aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Nathan Drake",
+      "resume_path": "data/resumes\\nathan_drake_mobile.txt",
+      "match_score": 75,
+      "matched_skills": [
+        "React",
+        "Redux",
+        "TypeScript"
+      ],
+      "relevant_excerpts": [
+        "Mobile Engineer - React Native at Tech Solutions (2020 - Present):",
+        "Delivered key features and engineering projects using React Native, TypeScript, iOS, Android, Redux."
+      ],
+      "reasoning": "Moderate match (75/100): Candidate possesses 5.0 years of relevant experience; exhibits direct proficiency in React, Redux, TypeScript aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Sophia Martinez",
+      "resume_path": "data/resumes\\sophia_martinez_ui.txt",
+      "match_score": 73,
+      "matched_skills": [
+        "JavaScript",
+        "React"
+      ],
+      "relevant_excerpts": [
+        "UI/UX Developer at Tech Solutions (2020 - Present):",
+        "Delivered key features and engineering projects using HTML5, CSS3, JavaScript, React, Figma, Tailwind."
+      ],
+      "reasoning": "Moderate match (73/100): Candidate possesses 3.0 years of relevant experience; exhibits direct proficiency in JavaScript, React aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Chloe Adams",
+      "resume_path": "data/resumes\\chloe_adams_fe.txt",
+      "match_score": 72,
+      "matched_skills": [
+        "JavaScript",
+        "React"
+      ],
+      "relevant_excerpts": [
+        "Frontend Developer at Tech Solutions (2020 - Present):",
+        "Delivered key features and engineering projects using JavaScript, HTML, CSS, React, Git."
+      ],
+      "reasoning": "Moderate match (72/100): Candidate possesses 2.0 years of relevant experience; exhibits direct proficiency in JavaScript, React aligned with key role responsibilities."
+    }
+  ]
+}

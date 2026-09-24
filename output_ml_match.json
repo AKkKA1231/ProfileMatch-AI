@@ -1,0 +1,89 @@
+{
+  "job_description": "Job Title: Senior Machine Learning Engineer - LLMs & RAG Architectures Location: San Francisco, CA (Hybrid / Remote) ...",
+  "top_matches": [
+    {
+      "candidate_name": "Jane Doe",
+      "resume_path": "data/resumes\\jane_doe_sr_ml.txt",
+      "match_score": 81,
+      "matched_skills": [
+        "ChromaDB",
+        "Docker",
+        "Kubernetes",
+        "LangChain",
+        "LlamaIndex",
+        "Pinecone",
+        "PyTorch",
+        "Python",
+        "Retrieval-Augmented Generation",
+        "Transformers"
+      ],
+      "relevant_excerpts": [
+        "Senior ML Engineer at TechCorp (2021 - Present):",
+        "Led deployment of enterprise RAG pipelines reducing query latency by 40% using ChromaDB and PyTorch."
+      ],
+      "reasoning": "Strong match (81/100): Candidate meets or exceeds the 5+ years experience requirement (6.0 yrs demonstrated); exhibits direct proficiency in ChromaDB, Docker, Kubernetes, LangChain aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Alex Rivera",
+      "resume_path": "data/resumes\\alex_rivera_ml_researcher.txt",
+      "match_score": 77,
+      "matched_skills": [
+        "PyTorch",
+        "Python"
+      ],
+      "relevant_excerpts": [
+        "Principal AI Scientist at Neural Labs (2020 - Present):",
+        "Co-authored architectures for 70B parameter LLM fine-tuning using DeepSpeed and PyTorch on 256 A100 GPUs."
+      ],
+      "reasoning": "Moderate match (77/100): Candidate meets or exceeds the 5+ years experience requirement (8.0 yrs demonstrated); exhibits direct proficiency in PyTorch, Python aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Michael Chang",
+      "resume_path": "data/resumes\\michael_chang_rag_dev.txt",
+      "match_score": 77,
+      "matched_skills": [
+        "Docker",
+        "LangChain",
+        "Pinecone",
+        "PyTorch",
+        "Python",
+        "Retrieval-Augmented Generation",
+        "Weaviate"
+      ],
+      "relevant_excerpts": [
+        "ML Engineer at SearchAI (2020 - Present):",
+        "Integrated Weaviate vector database with LangChain to power semantic search for 500k documents."
+      ],
+      "reasoning": "Moderate match (77/100): Candidate possesses 4.0 years of relevant experience; exhibits direct proficiency in Docker, LangChain, Pinecone, PyTorch aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Robert Chen",
+      "resume_path": "data/resumes\\robert_chen_sr_devops.txt",
+      "match_score": 77,
+      "matched_skills": [
+        "Docker",
+        "Kubernetes",
+        "Python"
+      ],
+      "relevant_excerpts": [
+        "Lead Infrastructure Engineer at CloudOps (2020 - Present):",
+        "Designed multi-region AWS infrastructure using Terraform and Ansible."
+      ],
+      "reasoning": "Moderate match (77/100): Candidate meets or exceeds the 5+ years experience requirement (6.0 yrs demonstrated); exhibits direct proficiency in Docker, Kubernetes, Python aligned with key role responsibilities."
+    },
+    {
+      "candidate_name": "Laura Bennett",
+      "resume_path": "data/resumes\\laura_bennett_ml.txt",
+      "match_score": 75,
+      "matched_skills": [
+        "PyTorch",
+        "Python"
+      ],
+      "relevant_excerpts": [
+        "Machine Learning Engineer at Tech Solutions (2020 - Present):",
+        "Delivered key features and engineering projects using Python, PyTorch, Hugging Face, NLP, Scikit-learn."
+      ],
+      "reasoning": "Moderate match (75/100): Candidate possesses 3.0 years of relevant experience; exhibits direct proficiency in PyTorch, Python aligned with key role responsibilities."
+    }
+  ]
+}

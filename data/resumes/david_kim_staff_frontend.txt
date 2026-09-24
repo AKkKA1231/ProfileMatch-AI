@@ -1,0 +1,21 @@
+Name: David Kim
+Title: Staff Frontend Engineer
+Total Experience: 7 years
+
+=== SUMMARY ===
+Staff Frontend Engineer with 7 years of expertise in React, TypeScript, Next.js, and enterprise design systems. Proven track record scaling web applications to millions of active users.
+
+=== WORK EXPERIENCE ===
+Staff Frontend Engineer at WebScale Inc (2021 - Present):
+- Architected core Next.js application reducing initial page load time by 50%.
+- Built enterprise component library adopted across 12 product teams.
+
+Senior Frontend Developer at UI Solutions (2017 - 2021):
+- Built complex state management solutions using React, Redux Toolkit, and GraphQL.
+
+=== EDUCATION ===
+B.S. in Computer Science, UCLA (2013 - 2017)
+
+=== SKILLS ===
+TypeScript, React, Next.js, Tailwind CSS, Jest, Playwright, Webpack
+

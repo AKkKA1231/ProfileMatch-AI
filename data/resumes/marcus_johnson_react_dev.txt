@@ -1,0 +1,17 @@
+Name: Marcus Johnson
+Title: Frontend Engineer - React Specialist
+Total Experience: 3 years
+
+=== SUMMARY ===
+Frontend Engineer with 3 years experience building dynamic web apps with React and Redux.
+
+=== WORK EXPERIENCE ===
+Frontend Engineer at AppStudio (2021 - Present):
+- Built interactive dashboards using React, Redux, and Chart.js.
+
+=== EDUCATION ===
+B.S. in Software Engineering, UT Austin (2017 - 2021)
+
+=== SKILLS ===
+React, JavaScript, HTML/CSS, Redux, Git
+

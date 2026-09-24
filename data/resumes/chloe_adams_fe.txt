@@ -1,0 +1,18 @@
+Name: Chloe Adams
+Title: Frontend Developer
+Total Experience: 2 years
+
+=== SUMMARY ===
+Frontend Developer with 2 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Frontend Developer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using JavaScript, HTML, CSS, React, Git.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: JavaScript, HTML, CSS, React, Git
+

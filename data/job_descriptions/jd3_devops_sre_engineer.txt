@@ -1,0 +1,18 @@
+Job Title: Senior DevOps & Infrastructure Engineer (SRE)
+Location: Austin, TX (Hybrid)
+Experience Required: 4+ years
+
+Role Overview:
+We are looking for a Senior DevOps & Site Reliability Engineer to manage cloud infrastructure, automate deployment pipelines, and ensure 99.99% system availability for mission-critical microservices.
+
+Key Responsibilities:
+- Design and maintain Infrastructure as Code (IaC) using Terraform and Ansible across AWS/GCP cloud environments.
+- Manage Kubernetes (EKS/GKE) cluster orchestration, service meshes (Istio), and auto-scaling configurations.
+- Build robust CI/CD automation pipelines using GitHub Actions, GitLab CI, and ArgoCD.
+- Implement comprehensive monitoring, logging, and alerting systems using Prometheus, Grafana, and Datadog.
+
+Required Qualifications & Skills:
+- 4+ years of dedicated DevOps, SRE, or Infrastructure Engineering experience.
+- Strong proficiency in Linux administration, Shell scripting (Bash), and Python/Go.
+- Expertise in AWS services (EC2, S3, RDS, IAM, VPC), Terraform, and Docker/Kubernetes containerization.
+- In-depth understanding of networking protocols, security hardening, TLS/SSL, and zero-downtime deployment strategies.

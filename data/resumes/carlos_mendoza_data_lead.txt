@@ -1,0 +1,19 @@
+Name: Carlos Mendoza
+Title: Data Engineering Lead
+Total Experience: 8 years
+
+=== SUMMARY ===
+Data Engineering Lead with 8 years experience architecting large-scale batch and real-time data pipelines using Spark, Kafka, Snowflake, and Airflow.
+
+=== WORK EXPERIENCE ===
+Data Engineering Lead at Enterprise Analytics (2019 - Present):
+- Architected cloud data warehouse on Snowflake processing 10TB daily data ingest.
+- Built real-time streaming data pipelines using Apache Kafka and Spark Streaming.
+- Managed Airflow DAG orchestrations for 200+ data workflows.
+
+=== EDUCATION ===
+M.S. in Information Systems, Northwestern University (2014 - 2016)
+
+=== SKILLS ===
+Apache Spark, Kafka, Airflow, Snowflake, Python, SQL, dbt, AWS
+

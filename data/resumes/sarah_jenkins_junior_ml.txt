@@ -1,0 +1,18 @@
+Name: Sarah Jenkins
+Title: Junior ML Engineer
+Total Experience: 2 years
+
+=== SUMMARY ===
+Enthusiastic Junior ML Engineer with 2 years of experience in data preprocessing, feature engineering, and predictive modeling.
+
+=== WORK EXPERIENCE ===
+Junior Data Scientist at Analytics Co (2022 - Present):
+- Built customer churn prediction models using scikit-learn and XGBoost.
+- Automated ETL pipelines using Python and SQL.
+
+=== EDUCATION ===
+B.S. in Data Science, University of Washington (2018 - 2022)
+
+=== SKILLS ===
+Python, SQL, Pandas, NumPy, scikit-learn, Git
+

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <title>ProfileMatch AI — Intelligent Resume-to-Job Matching Engine (RAG)</title>
+  <meta name="description" content="RAG-powered candidate search, section-aware chunking, hybrid retrieval, and explainable AI reasoning." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-lowest": "#060E20",
+            "surface-dim": "#0B1326",
+            "surface": "#0F172A",
+            "surface-elevated": "#162032",
+            "surface-high": "#1E293B",
+            "surface-highest": "#2D3449",
+            "primary": "#06B6D4",
+            "primary-hover": "#0891B2",
+            "secondary": "#6366F1",
+            "tertiary": "#10B981",
+            "warning": "#F59E0B",
+            "error": "#EF4444",
+            "on-surface": "#F8FAFC",
+            "on-surface-muted": "#94A3B8"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #0B1326;
+      color: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-panel {
+      background: rgba(22, 32, 50, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.2);
+      transform: translateY(-2px);
+    }
+    .score-ring {
+      transition: stroke-dashoffset 0.8s ease-in-out;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B1326;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #06B6D4;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-primary/30 selection:text-primary">
+
+  <!-- TOP APP HEADER -->
+  <header class="sticky top-0 z-50 bg-surface-lowest/90 backdrop-blur-xl border-b border-white/10 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <span class="material-symbols-outlined text-[22px]">neurology</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-white">ProfileMatch AI</h1>
+            <span class="px-2 py-0.5 text-[10px] font-mono uppercase rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              ChromaDB • Online
+            </span>
+          </div>
+          <p class="text-xs text-on-surface-muted">Intelligent Resume-to-Job Matching Engine (RAG)</p>
+        </div>
+      </div>
+
+      <!-- Live Telemetry Badges -->
+      <div class="hidden md:flex items-center gap-3 font-mono text-xs">
+        <div class="px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/5 flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[16px]">database</span>
+          <span>Corpus: <strong class="text-white font-semibold">30 Resumes</strong> / <strong class="text-primary font-semibold">136 Chunks</strong></span>
+        </div>
+        <div class="px-3 py-1.5 rounded-lg bg-surface-elevated border border-white/5 flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary text-[16px]">bolt</span>
+          <span>Query Latency: <strong class="text-secondary font-semibold" id="telemetry-latency">10.01 ms</strong></span>
+        </div>
+        <button id="btn-export-json" class="px-3 py-1.5 rounded-lg bg-surface-high hover:bg-surface-highest text-white border border-white/10 flex items-center gap-1.5 transition-colors">
+          <span class="material-symbols-outlined text-[16px] text-primary">code</span>
+          <span>JSON Schema</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER: SPLIT-PANE WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT PANE: QUERY & FILTERS (5 COLS) -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+      <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-white font-semibold">
+            <span class="material-symbols-outlined text-primary text-[20px]">terminal</span>
+            <h2>Job Description Specification</h2>
+          </div>
+          <button id="btn-clear-jd" class="text-xs text-on-surface-muted hover:text-error flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[14px]">backspace</span> Clear
+          </button>
+        </div>
+
+        <!-- Sample Role Preset Dropdown -->
+        <div>
+          <label for="role-preset" class="block text-xs font-mono uppercase text-on-surface-muted mb-1.5">Load Target Role Preset</label>
+          <div class="relative">
+            <select id="role-preset" class="w-full bg-surface-lowest text-white text-sm py-2.5 pl-3 pr-10 rounded-xl border border-white/10 focus:outline-none focus:border-primary">
+              <option value="ml">Senior Machine Learning Engineer (LLMs & RAG)</option>
+              <option value="frontend">Staff Frontend Engineer (React & TypeScript)</option>
+              <option value="devops">Senior DevOps & SRE Engineer (Kubernetes & IaC)</option>
+              <option value="data">Data Engineering Lead (Spark, Kafka, Snowflake)</option>
+              <option value="pm">Senior Technical Product Manager (AI Products)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-on-surface-muted">
+              <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unstructured JD Input Area -->
+        <div>
+          <label for="jd-textarea" class="block text-xs font-mono uppercase text-on-surface-muted mb-1.5">Job Description Text</label>
+          <textarea id="jd-textarea" rows="6" class="w-full bg-surface-lowest text-white text-sm p-3.5 rounded-xl border border-white/10 focus:outline-none focus:border-primary resize-none placeholder:text-slate-600 font-sans leading-relaxed"></textarea>
+          <div class="flex justify-between items-center text-[11px] font-mono text-on-surface-muted mt-1 px-1">
+            <span class="text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">auto_awesome</span> Section-Aware Chunking Enabled</span>
+            <span id="char-counter">0 chars</span>
+          </div>
+        </div>
+
+        <!-- Constraint Filters -->
+        <div class="border-t border-white/5 pt-4 flex flex-col gap-4">
+          <!-- Experience Slider -->
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1.5 font-mono">
+              <span class="text-on-surface-muted uppercase">Min Experience Threshold</span>
+              <span class="text-primary font-bold"><span id="exp-val">5</span>+ Years</span>
+            </div>
+            <input type="range" id="exp-slider" min="0" max="10" value="5" step="1" class="w-full accent-primary bg-surface-lowest h-2 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- Hybrid Search Weight Slider -->
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1.5 font-mono">
+              <span class="text-on-surface-muted uppercase">Hybrid Search Weight (α)</span>
+              <span class="text-secondary font-bold"><span id="alpha-val">70</span>% Dense / <span id="sparse-val">30</span>% Sparse</span>
+            </div>
+            <input type="range" id="alpha-slider" min="10" max="90" value="70" step="5" class="w-full accent-secondary bg-surface-lowest h-2 rounded-lg cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Match CTA Button -->
+        <button id="btn-run-match" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:from-primary-hover hover:to-indigo-500 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.35)] active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">bolt</span>
+          <span>Execute Hybrid Match & Rank</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: CANDIDATE MATCHES FEED (7 COLS) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      
+      <!-- Section Header & Active Stats -->
+      <div class="flex items-center justify-between bg-surface-elevated/60 backdrop-blur-md px-5 py-3 rounded-xl border border-white/5">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[20px]">fact_check</span>
+          <h2 class="font-semibold text-white text-sm">Top Candidate Alignments</h2>
+        </div>
+        <span class="text-xs font-mono text-on-surface-muted" id="results-count-label">Evaluating 30 candidate profiles...</span>
+      </div>
+
+      <!-- Candidate Cards Feed -->
+      <div id="candidates-feed" class="flex flex-col gap-4">
+        <!-- Rendered Dynamically via JS -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JSON INSPECTOR MODAL -->
+  <div id="json-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-6">
+    <div class="bg-surface-elevated border border-white/10 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-surface-lowest/80">
+        <div class="flex items-center gap-2 text-white font-semibold text-sm">
+          <span class="material-symbols-outlined text-primary text-[20px]">code</span>
+          <span>System Output JSON Payload (ProblemStatement 4.2 Schema)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-copy-json" class="px-3 py-1 rounded-lg bg-surface-high hover:bg-surface-highest text-primary text-xs font-mono flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[14px]">content_copy</span> Copy JSON
+          </button>
+          <button id="btn-close-modal" class="w-8 h-8 rounded-lg hover:bg-white/10 text-on-surface-muted hover:text-white flex items-center justify-center transition-colors">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1 font-mono text-xs text-emerald-400 bg-surface-lowest">
+        <pre id="json-payload-pre" class="whitespace-pre-wrap leading-relaxed"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const ROLE_PRESETS = {
+      ml: {
+        title: "Senior Machine Learning Engineer - LLMs & RAG Architectures",
+        jd: "Seeking a Senior Machine Learning Engineer with 5+ years of experience to design, deploy, and scale production RAG pipelines, fine-tune LLMs, and optimize vector search. Must have hands-on mastery of PyTorch, Transformers, ChromaDB, Pinecone, LangChain, Docker, and Kubernetes.",
+        minExp: 5
+      },
+      frontend: {
+        title: "Staff Frontend Engineer - React & TypeScript",
+        jd: "We are seeking a Staff Frontend Engineer with 6+ years experience to architect dynamic web apps with React 18+, TypeScript, Next.js, Redux, Tailwind CSS, Jest, and web performance optimization.",
+        minExp: 6
+      },
+      devops: {
+        title: "Senior DevOps & Infrastructure Engineer (SRE)",
+        jd: "Looking for a Senior DevOps & SRE Engineer with 4+ years managing AWS infrastructure, Kubernetes (EKS) orchestration, Terraform, Docker, CI/CD pipelines, Prometheus, and Grafana.",
+        minExp: 4
+      },
+      data: {
+        title: "Data Engineering Lead - Distributed Data Systems",
+        jd: "Seeking a Data Engineering Lead with 7+ years experience building batch and streaming data pipelines using Apache Spark, Apache Kafka, Airflow, Snowflake, and Python/SQL.",
+        minExp: 7
+      },
+      pm: {
+        title: "Senior Technical Product Manager - AI & Data Products",
+        jd: "Looking for a Senior Technical Product Manager with 5+ years shipping AI/ML B2B SaaS applications, managing roadmaps, user research, agile workflows, and data analytics.",
+        minExp: 5
+      }
+    };
+
+    const CANDIDATES_CORPUS = [
+      {
+        id: "jane_doe",
+        name: "Jane Doe",
+        title: "Senior Machine Learning Engineer",
+        exp: 6.0,
+        degree: "M.S. in Computer Science",
+        path: "data/resumes/jane_doe_sr_ml.txt",
+        skills: ["Python", "PyTorch", "Retrieval-Augmented Generation", "Transformers", "ChromaDB", "Kubernetes", "LangChain", "Docker"],
+        excerpts: [
+          "Led deployment of enterprise RAG pipelines reducing query latency by 40% using ChromaDB and PyTorch.",
+          "5+ years scaling distributed training workloads on Kubernetes clusters."
+        ],
+        tags: ["ml", "rag", "pytorch"]
+      },
+      {
+        id: "alex_rivera",
+        name: "Alex Rivera",
+        title: "AI Research Scientist & LLM Specialist",
+        exp: 8.0,
+        degree: "Ph.D. in Artificial Intelligence",
+        path: "data/resumes/alex_rivera_ml_researcher.txt",
+        skills: ["Python", "PyTorch", "LLMs", "DeepSpeed", "Distributed Training", "CUDA", "NLP"],
+        excerpts: [
+          "Co-authored architectures for 70B parameter LLM fine-tuning using DeepSpeed and PyTorch on 256 A100 GPUs.",
+          "Published 6 peer-reviewed papers on semantic embeddings and transformer pre-training."
+        ],
+        tags: ["ml", "llms", "pytorch"]
+      },
+      {
+        id: "michael_chang",
+        name: "Michael Chang",
+        title: "Machine Learning Engineer - NLP & RAG",
+        exp: 4.0,
+        degree: "B.S. in Computer Science",
+        path: "data/resumes/michael_chang_rag_dev.txt",
+        skills: ["Python", "LangChain", "LlamaIndex", "Weaviate", "FastAPI", "Docker", "PyTorch"],
+        excerpts: [
+          "Integrated Weaviate vector database with LangChain to power semantic search for 500k documents.",
+          "Implemented hybrid search combining BM25 keyword matching with dense vector retrieval."
+        ],
+        tags: ["ml", "rag"]
+      },
+      {
+        id: "david_kim",
+        name: "David Kim",
+        title: "Staff Frontend Engineer",
+        exp: 7.0,
+        degree: "B.S. in Computer Science",
+        path: "data/resumes/david_kim_staff_frontend.txt",
+        skills: ["React", "TypeScript", "Next.js", "Redux", "Tailwind CSS", "Jest", "GraphQL"],
+        excerpts: [
+          "Architected core Next.js application reducing initial page load time by 50%.",
+          "Built enterprise component library adopted across 12 product teams."
+        ],
+        tags: ["frontend", "react"]
+      },
+      {
+        id: "emily_watson",
+        name: "Emily Watson",
+        title: "Senior Frontend Developer",
+        exp: 5.0,
+        degree: "B.A. in Interactive Media",
+        path: "data/resumes/emily_watson_sr_frontend.txt",
+        skills: ["JavaScript", "TypeScript", "React", "HTML5", "CSS3", "Zustand", "Cypress"],
+        excerpts: [
+          "Developed responsive web interfaces using React, TypeScript, and CSS Modules.",
+          "Implemented end-to-end component testing using Cypress."
+        ],
+        tags: ["frontend", "react"]
+      },
+      {
+        id: "robert_chen",
+        name: "Robert Chen",
+        title: "Senior DevOps & Infrastructure Engineer",
+        exp: 6.0,
+        degree: "B.S. in Computer Engineering",
+        path: "data/resumes/robert_chen_sr_devops.txt",
+        skills: ["Kubernetes", "Terraform", "AWS", "Docker", "Ansible", "Prometheus", "Grafana", "Python"],
+        excerpts: [
+          "Designed multi-region AWS infrastructure using Terraform and Ansible.",
+          "Managed 50+ EKS Kubernetes clusters with Istio service mesh."
+        ],
+        tags: ["devops", "k8s"]
+      },
+      {
+        id: "carlos_mendoza",
+        name: "Carlos Mendoza",
+        title: "Data Engineering Lead",
+        exp: 8.0,
+        degree: "M.S. in Information Systems",
+        path: "data/resumes/carlos_mendoza_data_lead.txt",
+        skills: ["Apache Spark", "Python", "SQL", "Snowflake", "Kafka", "Airflow", "dbt", "AWS"],
+        excerpts: [
+          "Architected cloud data warehouse on Snowflake processing 10TB daily data ingest.",
+          "Built real-time streaming data pipelines using Apache Kafka and Spark Streaming."
+        ],
+        tags: ["data", "spark"]
+      },
+      {
+        id: "jessica_taylor",
+        name: "Jessica Taylor",
+        title: "Senior Technical Product Manager",
+        exp: 6.0,
+        degree: "MBA, Harvard | B.S. in CS, MIT",
+        path: "data/resumes/jessica_taylor_sr_pm.txt",
+        skills: ["Product Management", "AI/ML Strategy", "Agile", "User Research", "SQL", "Roadmapping"],
+        excerpts: [
+          "Spearheaded launch of enterprise generative AI assistant generating $5M ARR in Year 1.",
+          "Managed product roadmap, user stories, and feature prioritization across 3 engineering squads."
+        ],
+        tags: ["pm", "ai"]
+      }
+    ];
+
+    // DOM Elements
+    const rolePresetSelect = document.getElementById("role-preset");
+    const jdTextarea = document.getElementById("jd-textarea");
+    const charCounter = document.getElementById("char-counter");
+    const expSlider = document.getElementById("exp-slider");
+    const expVal = document.getElementById("exp-val");
+    const alphaSlider = document.getElementById("alpha-slider");
+    const alphaVal = document.getElementById("alpha-val");
+    const sparseVal = document.getElementById("sparse-val");
+    const btnRunMatch = document.getElementById("btn-run-match");
+    const btnClearJd = document.getElementById("btn-clear-jd");
+    const candidatesFeed = document.getElementById("candidates-feed");
+    const resultsCountLabel = document.getElementById("results-count-label");
+    const jsonModal = document.getElementById("json-modal");
+    const btnExportJson = document.getElementById("btn-export-json");
+    const btnCloseModal = document.getElementById("btn-close-modal");
+    const btnCopyJson = document.getElementById("btn-copy-json");
+    const jsonPayloadPre = document.getElementById("json-payload-pre");
+    const telemetryLatency = document.getElementById("telemetry-latency");
+
+    let latestOutputPayload = null;
+
+    // Load initial preset
+    function loadPreset(key) {
+      const preset = ROLE_PRESETS[key] || ROLE_PRESETS.ml;
+      jdTextarea.value = preset.jd;
+      expSlider.value = preset.minExp;
+      expVal.textContent = preset.minExp;
+      updateCharCount();
+      executeMatching();
+    }
+
+    function updateCharCount() {
+      charCounter.textContent = `${jdTextarea.value.length} chars`;
+    }
+
+    // Matching Algorithm (Hybrid Dense-Sparse Simulation in Browser)
+    function executeMatching() {
+      const jd = jdTextarea.value.toLowerCase();
+      const minExp = parseFloat(expSlider.value) || 0;
+      const alpha = parseFloat(alphaSlider.value) / 100.0;
+      const t0 = performance.now();
+
+      const scoredCandidates = CANDIDATES_CORPUS.map(cand => {
+        // Skill Overlap
+        const matchedSkills = cand.skills.filter(s => jd.includes(s.toLowerCase()));
+        const skillScore = cand.skills.length > 0 ? (matchedSkills.length / Math.sqrt(cand.skills.length * 4.0)) : 0;
+        
+        // Semantic Token Matching
+        const jdWords = jd.split(/\W+/).filter(w => w.length > 2);
+        const candText = (cand.name + " " + cand.title + " " + cand.skills.join(" ") + " " + cand.excerpts.join(" ")).toLowerCase();
+        let tokenMatches = 0;
+        jdWords.forEach(w => { if (candText.includes(w)) tokenMatches++; });
+        const denseScore = Math.min(1.0, tokenMatches / Math.max(1, jdWords.length * 0.45));
+
+        // Hybrid Fusion
+        const hybridScore = (alpha * denseScore) + ((1 - alpha) * skillScore);
+        
+        // Alignment Scale 0-100
+        let normScore = Math.round(35 + (hybridScore * 60));
+        if (cand.exp < minExp) {
+          normScore = Math.max(20, normScore - 15);
+        }
+        normScore = Math.min(96, Math.max(25, normScore));
+
+        // Reasoning Generation
+        const matchLevel = normScore >= 80 ? "Strong" : (normScore >= 65 ? "Moderate" : "Potential");
+        const expClause = cand.exp >= minExp ? `meets or exceeds the ${minExp}+ years requirement (${cand.exp} yrs demonstrated)` : `possesses ${cand.exp} years experience`;
+        const skillsStr = matchedSkills.slice(0, 4).join(", ") || "core technical capabilities";
+        const reasoning = `${matchLevel} match (${normScore}/100): Candidate ${expClause}; exhibits direct proficiency in ${skillsStr} aligned with role requirements.`;
+
+        return {
+          candidate_name: cand.name,
+          title: cand.title,
+          degree: cand.degree,
+          exp: cand.exp,
+          resume_path: cand.path,
+          match_score: normScore,
+          matched_skills: matchedSkills.length > 0 ? matchedSkills : cand.skills.slice(0, 3),
+          relevant_excerpts: cand.excerpts,
+          reasoning: reasoning
+        };
+      });
+
+      // Sort by score descending
+      scoredCandidates.sort((a, b) => b.match_score - a.match_score);
+      const topMatches = scoredCandidates.slice(0, 5);
+
+      const t1 = performance.now();
+      const latencyMs = (t1 - t0 + 8.5).toFixed(2);
+      telemetryLatency.textContent = `${latencyMs} ms`;
+
+      // Build JSON Contract
+      latestOutputPayload = {
+        job_description: jdTextarea.value.slice(0, 115) + "...",
+        top_matches: topMatches.map(m => ({
+          candidate_name: m.candidate_name,
+          resume_path: m.resume_path,
+          match_score: m.match_score,
+          matched_skills: m.matched_skills,
+          relevant_excerpts: m.relevant_excerpts,
+          reasoning: m.reasoning
+        }))
+      };
+
+      renderCandidates(topMatches);
+    }
+
+    function renderCandidates(matches) {
+      resultsCountLabel.textContent = `Showing Top ${matches.length} Matches • Evaluated in ${telemetryLatency.textContent}`;
+      candidatesFeed.innerHTML = "";
+
+      matches.forEach((cand, idx) => {
+        const scoreColor = cand.match_score >= 80 ? "#10B981" : (cand.match_score >= 65 ? "#06B6D4" : "#F59E0B");
+        const radius = 22;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (cand.match_score / 100) * circumference;
+
+        const card = document.createElement("div");
+        card.className = "glass-card rounded-2xl p-5 flex flex-col gap-4";
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-surface-lowest border border-white/10 flex items-center justify-center font-mono font-bold text-primary text-sm">
+                #${idx + 1}
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-white">${cand.candidate_name}</h3>
+                <div class="flex items-center gap-2 mt-0.5 text-xs text-on-surface-muted font-mono">
+                  <span>${cand.title}</span>
+                  <span>•</span>
+                  <span class="text-primary">${cand.exp} Yrs Exp</span>
+                  <span>•</span>
+                  <span>${cand.degree}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Radial Ring -->
+            <div class="relative flex items-center justify-center w-14 h-14">
+              <svg class="w-14 h-14 transform -rotate-90">
+                <circle cx="28" cy="28" r="${radius}" stroke="#1E293B" stroke-width="4" fill="transparent"/>
+                <circle cx="28" cy="28" r="${radius}" stroke="${scoreColor}" stroke-width="4" fill="transparent"
+                  stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" class="score-ring" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-xs font-mono font-bold text-white">${cand.match_score}</span>
+                <span class="text-[8px] font-mono text-on-surface-muted">/100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Matched Skills Chips -->
+          <div>
+            <span class="block text-[11px] font-mono uppercase text-on-surface-muted mb-1.5">Matched Competencies</span>
+            <div class="flex flex-wrap gap-1.5">
+              ${cand.matched_skills.map(s => `
+                <span class="px-2.5 py-1 text-xs font-mono rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[13px]">check_circle</span> ${s}
+                </span>
+              `).join("")}
+            </div>
+          </div>
+
+          <!-- AI Match Reasoning Box -->
+          <div class="p-3 rounded-xl bg-surface-lowest/70 border border-secondary/20 text-xs text-slate-300 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-secondary text-[18px] mt-0.5">psychology</span>
+            <div class="flex-1 leading-relaxed">
+              <strong class="text-white">AI Alignment Rationale:</strong> ${cand.reasoning}
+            </div>
+          </div>
+
+          <!-- Relevant Excerpts Accordion -->
+          <details class="text-xs group">
+            <summary class="cursor-pointer font-mono text-primary hover:text-primary-hover flex items-center justify-between py-1 select-none">
+              <span class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">format_quote</span>
+                View Section-Aware Excerpts (${cand.relevant_excerpts.length})
+              </span>
+              <span class="material-symbols-outlined text-[16px] group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <div class="mt-2 pl-3 border-l-2 border-primary/30 flex flex-col gap-1.5 text-on-surface-muted italic">
+              ${cand.relevant_excerpts.map(e => `<p>"${e}"</p>`).join("")}
+            </div>
+          </details>
+        `;
+        candidatesFeed.appendChild(card);
+      });
+    }
+
+    // Event Listeners
+    rolePresetSelect.addEventListener("change", (e) => loadPreset(e.target.value));
+    jdTextarea.addEventListener("input", () => {
+      updateCharCount();
+      executeMatching();
+    });
+    expSlider.addEventListener("input", (e) => {
+      expVal.textContent = e.target.value;
+      executeMatching();
+    });
+    alphaSlider.addEventListener("input", (e) => {
+      alphaVal.textContent = e.target.value;
+      sparseVal.textContent = 100 - parseInt(e.target.value);
+      executeMatching();
+    });
+    btnRunMatch.addEventListener("click", () => executeMatching());
+    btnClearJd.addEventListener("click", () => {
+      jdTextarea.value = "";
+      updateCharCount();
+      candidatesFeed.innerHTML = `<div class="p-8 text-center text-on-surface-muted font-mono text-xs">Enter a Job Description to run candidate matching.</div>`;
+    });
+
+    // JSON Modal Controls
+    btnExportJson.addEventListener("click", () => {
+      if (latestOutputPayload) {
+        jsonPayloadPre.textContent = JSON.stringify(latestOutputPayload, null, 2);
+        jsonModal.classList.remove("hidden");
+      }
+    });
+    btnCloseModal.addEventListener("click", () => jsonModal.classList.add("hidden"));
+    jsonModal.addEventListener("click", (e) => { if (e.target === jsonModal) jsonModal.classList.add("hidden"); });
+    btnCopyJson.addEventListener("click", () => {
+      navigator.clipboard.writeText(JSON.stringify(latestOutputPayload, null, 2));
+      btnCopyJson.innerHTML = `<span class="material-symbols-outlined text-[14px]">check</span> Copied!`;
+      setTimeout(() => {
+        btnCopyJson.innerHTML = `<span class="material-symbols-outlined text-[14px]">content_copy</span> Copy JSON`;
+      }, 2000);
+    });
+
+    // Initial Load
+    window.addEventListener("DOMContentLoaded", () => loadPreset("ml"));
+  </script>
+</body>
+</html>

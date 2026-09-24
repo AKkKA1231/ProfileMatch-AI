@@ -1,0 +1,18 @@
+Name: Hannah Abbott
+Title: Data Scientist
+Total Experience: 4 years
+
+=== SUMMARY ===
+Data Scientist with 4 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Data Scientist at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using Python, R, SQL, Machine Learning, Tableau, Pandas.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: Python, R, SQL, Machine Learning, Tableau, Pandas
+

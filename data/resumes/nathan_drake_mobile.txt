@@ -1,0 +1,18 @@
+Name: Nathan Drake
+Title: Mobile Engineer - React Native
+Total Experience: 5 years
+
+=== SUMMARY ===
+Mobile Engineer - React Native with 5 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Mobile Engineer - React Native at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using React Native, TypeScript, iOS, Android, Redux.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: React Native, TypeScript, iOS, Android, Redux
+

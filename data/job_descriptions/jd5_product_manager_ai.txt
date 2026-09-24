@@ -1,0 +1,19 @@
+Job Title: Senior Technical Product Manager - AI & Data Products
+Location: Boston, MA (Hybrid)
+Experience Required: 5+ years
+
+Role Overview:
+We are looking for a Senior Technical Product Manager to define the strategy, roadmap, and execution for AI-powered SaaS products. You will bridge technical engineering teams with business stakeholders to ship intuitive, context-aware AI tools.
+
+Key Responsibilities:
+- Define product vision, customer personas, roadmap prioritization, and feature specs for AI/ML capabilities.
+- Translate business objectives into detailed technical user stories, acceptance criteria, and API requirements.
+- Analyze product metrics (DAU, retention, NPS, latency, conversion) to drive iterative feature improvements.
+- Collaborate closely with ML engineers, UX designers, and executive leaders in an Agile framework.
+
+Required Qualifications & Skills:
+- 5+ years of product management experience shipping B2B SaaS or AI-driven enterprise products.
+- Technical background with a strong understanding of Machine Learning, APIs, and data analytics workflows.
+- Proven track record of user research, wireframing, A/B testing, and data-informed decision making.
+- Outstanding verbal and written communication skills with strong executive presentation ability.
+- MBA or B.S. in Computer Science, Engineering, or technical discipline.

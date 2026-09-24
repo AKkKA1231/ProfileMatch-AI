@@ -1,0 +1,19 @@
+Job Title: Staff Frontend Engineer - React & TypeScript
+Location: New York, NY (Remote Optional)
+Experience Required: 6+ years
+
+Role Overview:
+We are seeking a Staff Frontend Engineer to architect next-generation dynamic web applications. You will lead UI/UX engineering, build reusable component libraries, optimize rendering performance, and integrate web sockets and REST APIs.
+
+Key Responsibilities:
+- Lead the architecture of scalable web applications using React 18+, TypeScript, and Next.js.
+- Implement responsive modern user interfaces with advanced CSS (CSS Modules, Tailwind, Glassmorphism, animations).
+- Optimize web application performance (Core Web Vitals, dynamic imports, bundle size reduction).
+- Collaborate with product designers and backend engineers to integrate complex APIs and real-time state management (Redux Toolkit, Zustand, React Query).
+
+Required Qualifications & Skills:
+- 6+ years of front-end development experience building complex enterprise web applications.
+- Master-level proficiency in JavaScript (ES6+), TypeScript, React, and Next.js.
+- Strong knowledge of HTML5, CSS3, modern responsive design, micro-frontends, and web performance optimization.
+- Experience writing comprehensive unit/E2E tests (Jest, React Testing Library, Playwright, Cypress).
+- B.S. in Computer Science, Software Engineering, or equivalent experience.

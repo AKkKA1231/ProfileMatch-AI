@@ -1,0 +1,29 @@
+Name: Jane Doe
+Title: Senior Machine Learning Engineer
+Total Experience: 6 years
+
+=== SUMMARY ===
+Senior Machine Learning Engineer with 6 years of experience building and deploying enterprise RAG pipelines, distributed LLM training, and high-throughput vector search engines.
+
+=== WORK EXPERIENCE ===
+Senior ML Engineer at TechCorp (2021 - Present):
+- Led deployment of enterprise RAG pipelines reducing query latency by 40% using ChromaDB and PyTorch.
+- Scaled distributed training workloads on Kubernetes clusters with 64 GPUs.
+- Designed section-aware chunking and automated metadata extraction algorithms for multi-modal document ingestion.
+
+Machine Learning Engineer at DataFlow Systems (2018 - 2021):
+- Built NLP classification models using Transformers and Hugging Face, achieving 94% F1-score.
+- Developed REST API endpoints using FastAPI for real-time inference.
+
+=== EDUCATION ===
+M.S. in Computer Science, Stanford University (2016 - 2018)
+B.S. in Computer Science, UC Berkeley (2012 - 2016)
+
+=== SKILLS ===
+Languages: Python, C++, SQL
+Frameworks: PyTorch, TensorFlow, Transformers, LangChain, LlamaIndex
+Databases & Tools: ChromaDB, Pinecone, Kubernetes, Docker, Git
+
+=== CERTIFICATIONS ===
+AWS Certified Machine Learning - Specialty (2023)
+

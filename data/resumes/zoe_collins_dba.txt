@@ -1,0 +1,18 @@
+Name: Zoe Collins
+Title: Database Administrator
+Total Experience: 6 years
+
+=== SUMMARY ===
+Database Administrator with 6 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Database Administrator at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using PostgreSQL, MySQL, Oracle, Performance Tuning, SQL.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: PostgreSQL, MySQL, Oracle, Performance Tuning, SQL
+

@@ -1,0 +1,18 @@
+Name: Sophia Martinez
+Title: UI/UX Developer
+Total Experience: 3 years
+
+=== SUMMARY ===
+UI/UX Developer with 3 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+UI/UX Developer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using HTML5, CSS3, JavaScript, React, Figma, Tailwind.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: HTML5, CSS3, JavaScript, React, Figma, Tailwind
+

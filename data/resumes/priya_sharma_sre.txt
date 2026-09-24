@@ -1,0 +1,18 @@
+Name: Priya Sharma
+Title: Site Reliability Engineer (SRE)
+Total Experience: 4 years
+
+=== SUMMARY ===
+Site Reliability Engineer with 4 years experience optimizing system reliability, incident management, and automated monitoring on Google Cloud Platform.
+
+=== WORK EXPERIENCE ===
+SRE at FinTech Global (2020 - Present):
+- Maintained 99.99% uptime for payment gateway microservices on GCP.
+- Created custom SLO/SLI dashboards in Datadog and Grafana.
+
+=== EDUCATION ===
+B.Tech in Computer Science, IIT Delhi (2016 - 2020)
+
+=== SKILLS ===
+Go, Python, Linux, GCP, Kubernetes, Datadog, Terraform
+

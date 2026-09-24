@@ -1,0 +1,18 @@
+Name: Emily Watson
+Title: Senior Frontend Developer
+Total Experience: 5 years
+
+=== SUMMARY ===
+Senior Frontend Developer with 5 years experience specializing in responsive web design, React state management, and modern CSS animations.
+
+=== WORK EXPERIENCE ===
+Senior Frontend Developer at CreativeTech (2020 - Present):
+- Developed responsive web interfaces using React, TypeScript, and CSS Modules.
+- Implemented end-to-end component testing using Cypress.
+
+=== EDUCATION ===
+B.A. in Interactive Media, NYU (2015 - 2019)
+
+=== SKILLS ===
+React, JavaScript, TypeScript, HTML5, CSS3, Cypress, Figma
+

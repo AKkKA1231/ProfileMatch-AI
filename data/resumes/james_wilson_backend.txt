@@ -1,0 +1,18 @@
+Name: James Wilson
+Title: Backend Python Engineer
+Total Experience: 5 years
+
+=== SUMMARY ===
+Backend Python Engineer with 5 years of experience in software development and technology solutions.
+
+=== WORK EXPERIENCE ===
+Backend Python Engineer at Tech Solutions (2020 - Present):
+- Delivered key features and engineering projects using Python, Django, FastAPI, PostgreSQL, Redis, Celery.
+- Collaborated with cross-functional teams to optimize performance.
+
+=== EDUCATION ===
+B.S. in Computer Science, State University (2016 - 2020)
+
+=== SKILLS ===
+Core Competencies: Python, Django, FastAPI, PostgreSQL, Redis, Celery
+
